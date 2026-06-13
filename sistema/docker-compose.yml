@@ -1,0 +1,77 @@
+# =====================================================
+# ERP MATERIAL DE CONSTRUÇÃO
+# Docker Compose - Desenvolvimento
+# =====================================================
+
+services:
+  # =====================================================
+  # PostgreSQL - Banco de Dados
+  # =====================================================
+  db:
+    image: postgres:16-alpine
+    container_name: erp_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: erp_material
+      POSTGRES_USER: erp_user
+      POSTGRES_PASSWORD: erp_pass_123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - erp_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U erp_user -d erp_material"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # =====================================================
+  # Backend FastAPI
+  # =====================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: erp_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    env_file:
+      - ./backend/.env
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - erp_network
+
+  # =====================================================
+  # Frontend React + Vite
+  # =====================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: erp_frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - erp_network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  erp_network:
+    driver: bridge
