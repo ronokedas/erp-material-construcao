@@ -66,6 +66,7 @@ def criar_venda(
         usuario_id=current_user.id,
         numero_pedido=numero_pedido,
         tipo_pagamento=data.tipo_pagamento,
+        status="confirmada",
         subtotal=subtotal,
         desconto=data.desconto or 0,
         total=total,

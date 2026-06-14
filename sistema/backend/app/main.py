@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.api import auth, clientes, fornecedores, produtos, categorias, vendas, dashboard
+from app.api import auth, clientes, fornecedores, produtos, categorias, vendas, dashboard, orcamentos
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -36,6 +36,7 @@ app.include_router(produtos.router, prefix="/api/produtos", tags=["Produtos"])
 app.include_router(categorias.router, prefix="/api/categorias", tags=["Categorias"])
 app.include_router(vendas.router, prefix="/api/vendas", tags=["Vendas"])
 app.include_router(dashboard.router, prefix="/api/dashboard", tags=["Dashboard"])
+app.include_router(orcamentos.router, prefix="/api/orcamentos", tags=["Orçamentos"])
 
 
 @app.get("/")

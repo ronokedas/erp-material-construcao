@@ -204,6 +204,50 @@ class ApiService {
     });
   }
 
+  // Orçamentos
+  async getOrcamentos(params?: string) {
+    return this.request(`/api/orcamentos${params ? `?${params}` : ''}`);
+  }
+
+  async getOrcamento(id: number) {
+    return this.request(`/api/orcamentos/${id}`);
+  }
+
+  async createOrcamento(data: any) {
+    return this.request('/api/orcamentos', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async cancelarOrcamento(id: number) {
+    return this.request(`/api/orcamentos/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async converterOrcamentoEmVenda(id: number) {
+    return this.request(`/api/orcamentos/${id}/converter`, {
+      method: 'POST',
+    });
+  }
+
+  async downloadPdfOrcamento(id: number) {
+    const headers: Record<string, string> = {};
+    if (this.token) {
+      headers['Authorization'] = `Bearer ${this.token}`;
+    }
+    const response = await fetch(`${API_URL}/api/orcamentos/${id}/pdf`, { headers });
+    if (!response.ok) throw new Error('Erro ao baixar PDF');
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `orcamento-${id}.pdf`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  }
+
   // Dashboard
   async getDashboard() {
     return this.request('/api/dashboard');

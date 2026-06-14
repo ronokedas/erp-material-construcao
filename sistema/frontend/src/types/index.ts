@@ -98,6 +98,33 @@ export interface ItemVenda {
   subtotal: number;
 }
 
+export interface Orcamento {
+  id?: number;
+  cliente_id: number;
+  cliente_nome?: string;
+  usuario_id?: number;
+  usuario_nome?: string;
+  numero_orcamento?: string;
+  data_orcamento?: string;
+  data_validade?: string;
+  status: string;
+  subtotal?: number;
+  desconto?: number;
+  total: number;
+  observacao?: string;
+  venda_id?: number;
+  itens: OrcamentoItem[];
+}
+
+export interface OrcamentoItem {
+  id?: number;
+  produto_id: number;
+  quantidade: number;
+  preco_unitario: number;
+  desconto_item?: number;
+  subtotal_item?: number;
+}
+
 export interface DashboardData {
   total_clientes: number;
   total_produtos: number;

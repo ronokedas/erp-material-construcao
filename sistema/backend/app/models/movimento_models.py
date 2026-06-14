@@ -28,6 +28,7 @@ class Venda(Base):
 
     cliente = relationship("Cliente", back_populates="vendas")
     itens = relationship("VendaItem", back_populates="venda", cascade="all, delete-orphan")
+    orcamentos = relationship("Orcamento", back_populates="venda_ref")
 
 
 class VendaItem(Base):
@@ -100,7 +101,9 @@ class Orcamento(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow)
 
+    cliente = relationship("Cliente", back_populates="orcamentos")
     itens = relationship("OrcamentoItem", back_populates="orcamento", cascade="all, delete-orphan")
+    venda_ref = relationship("Venda", back_populates="orcamentos")
 
 
 class OrcamentoItem(Base):

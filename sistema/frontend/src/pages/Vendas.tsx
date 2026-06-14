@@ -2,6 +2,12 @@ import { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import type { Produto, Cliente, ItemVenda } from '../types';
 
+function toNumber(val: any): number {
+  if (val === null || val === undefined) return 0;
+  const n = Number(val);
+  return isNaN(n) ? 0 : n;
+}
+
 export default function Vendas() {
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [clientes, setClientes] = useState<Cliente[]>([]);
@@ -13,7 +19,11 @@ export default function Vendas() {
   const [quantidade, setQuantidade] = useState(1);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [successMsg, setSuccessMsg] = useState('');
   const [error, setError] = useState('');
+  const [vendas, setVendas] = useState<any[]>([]);
+  const [showLista, setShowLista] = useState(true);
+  const [searchVenda, setSearchVenda] = useState('');
 
   useEffect(() => {
     loadProdutos();
@@ -40,42 +50,48 @@ export default function Vendas() {
   );
 
   const adicionarItem = (produto: Produto) => {
+    const pid = toNumber(produto.id);
+    if (!pid) return;
+    const preco = toNumber(produto.preco_venda);
+    if (preco <= 0) return;
     const qtd = quantidade <= 0 ? 1 : quantidade;
-    const existente = carrinho.find(item => item.produto_id === produto.id);
-    
-    if (existente) {
-      setCarrinho(carrinho.map(item =>
-        item.produto_id === produto.id
-          ? { ...item, quantidade: item.quantidade + qtd, subtotal: (item.quantidade + qtd) * item.preco_unitario }
-          : item
-      ));
-    } else {
-      setCarrinho([...carrinho, {
-        produto_id: produto.id!,
+
+    setCarrinho(prev => {
+      const existente = prev.find(item => item.produto_id === pid);
+      if (existente) {
+        return prev.map(item =>
+          item.produto_id === pid
+            ? { ...item, quantidade: item.quantidade + qtd, subtotal: (item.quantidade + qtd) * item.preco_unitario }
+            : item
+        );
+      }
+      return [...prev, {
+        produto_id: pid,
         produto_nome: produto.descricao,
         quantidade: qtd,
-        preco_unitario: produto.preco_venda,
-        subtotal: qtd * produto.preco_venda,
-      }]);
-    }
+        preco_unitario: preco,
+        subtotal: qtd * preco,
+      }];
+    });
+
     setProdutoSearch('');
     setQuantidade(1);
   };
 
   const removerItem = (produtoId: number) => {
-    setCarrinho(carrinho.filter(item => item.produto_id !== produtoId));
+    setCarrinho(prev => prev.filter(item => item.produto_id !== produtoId));
   };
 
   const alterarQuantidade = (produtoId: number, qtd: number) => {
     if (qtd <= 0) return removerItem(produtoId);
-    setCarrinho(carrinho.map(item =>
+    setCarrinho(prev => prev.map(item =>
       item.produto_id === produtoId
         ? { ...item, quantidade: qtd, subtotal: qtd * item.preco_unitario }
         : item
     ));
   };
 
-  const total = carrinho.reduce((acc, item) => acc + item.subtotal, 0);
+  const total = carrinho.reduce((acc, item) => acc + toNumber(item.subtotal), 0);
 
   const handleFinalizar = async () => {
     if (!clienteId) { setError('Selecione um cliente'); return; }

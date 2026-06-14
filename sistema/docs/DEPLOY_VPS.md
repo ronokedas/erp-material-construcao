@@ -83,12 +83,18 @@ git push -u origin main
 
 ### 2.3 Clonar no VPS
 
-Agora sim, conecte no VPS e clone:
+Acesse o VPS pelo SSH do Google Cloud (ou terminal) e clone:
 
 ```bash
-ssh usuario@IP_DO_SEU_VPS
-cd /home/usuario
-git clone https://github.com/SEU_USUARIO/erp-material-construcao.git
+# Seu usuário no Google Cloud: ronokedas2020
+# Seu IP: 34.133.77.209
+
+# Conectar (se ainda não estiver conectado):
+ssh ronokedas2020@34.133.77.209
+
+# Clonar o repositório:
+cd /home/ronokedas2020
+git clone https://github.com/ronokedas/erp-material-construcao.git
 cd erp-material-construcao
 ```
 

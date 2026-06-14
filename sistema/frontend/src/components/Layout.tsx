@@ -13,6 +13,7 @@ const menuItems = [
   { path: '/categorias', label: 'Categorias', icon: '📂' },
   { path: '/produtos', label: 'Produtos', icon: '📦' },
   { path: '/vendas', label: 'Vendas', icon: '🛒' },
+  { path: '/orcamentos', label: 'Orçamentos', icon: '📝' },
   { path: '/estoque', label: 'Estoque', icon: '📋' },
   { path: '/financeiro', label: 'Financeiro', icon: '💰' },
 ];
@@ -28,10 +29,15 @@ export default function Layout({ children }: LayoutProps) {
       {/* Sidebar */}
       <aside className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-slate-800 text-white transition-all duration-300 flex flex-col`}>
         {/* Logo */}
-        <div className="h-16 flex items-center justify-center border-b border-slate-700">
-          <h1 className={`font-bold text-lg ${!sidebarOpen && 'hidden'}`}>ERP Construção</h1>
+        <button
+          onClick={() => navigate('/')}
+          className="h-16 w-full flex items-center justify-center border-b border-slate-700 hover:bg-slate-700 transition-colors cursor-pointer"
+        >
+          <h1 className={`font-bold text-sm leading-tight text-center ${!sidebarOpen && 'hidden'}`}>
+            AgenciaRosano<br/>Material de Construção
+          </h1>
           <span className={`text-2xl ${sidebarOpen && 'hidden'}`}>🏗️</span>
-        </div>
+        </button>
 
         {/* Menu */}
         <nav className="flex-1 overflow-y-auto py-4">

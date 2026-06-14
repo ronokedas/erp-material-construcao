@@ -84,6 +84,7 @@ class Cliente(Base):
     updated_at = Column(DateTime, default=datetime.utcnow)
 
     vendas = relationship("Venda", back_populates="cliente")
+    orcamentos = relationship("Orcamento", back_populates="cliente")
 
 
 class Fornecedor(Base):
