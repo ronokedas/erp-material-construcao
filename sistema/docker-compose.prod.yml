@@ -1,0 +1,86 @@
+# =====================================================
+# ERP MATERIAL DE CONSTRUÇÃO
+# Docker Compose - PRODUÇÃO
+# =====================================================
+
+services:
+  # =====================================================
+  # PostgreSQL - Banco de Dados
+  # =====================================================
+  db:
+    image: postgres:16-alpine
+    container_name: erp_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: erp_material
+      POSTGRES_USER: erp_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-erp_pass_123}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - erp_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U erp_user -d erp_material"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # =====================================================
+  # Backend FastAPI (Produção)
+  # =====================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    container_name: erp_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - erp_network
+
+  # =====================================================
+  # Frontend Build (etapa de build)
+  # =====================================================
+  frontend-build:
+    image: node:20-alpine
+    container_name: erp_frontend_build
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - frontend_dist:/app/dist
+    command: sh -c "npm install && npm run build"
+
+  # =====================================================
+  # Frontend Nginx (Produção)
+  # =====================================================
+  frontend:
+    image: nginx:alpine
+    container_name: erp_frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - frontend_dist:/usr/share/nginx/html
+    depends_on:
+      - frontend-build
+      - backend
+    networks:
+      - erp_network
+
+volumes:
+  postgres_data:
+    driver: local
+  frontend_dist:
+    driver: local
+
+networks:
+  erp_network:
+    driver: bridge
